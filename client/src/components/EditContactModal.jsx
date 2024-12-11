@@ -15,9 +15,11 @@ import {
   IconButton,
   Textarea,
   useToast,
+  FormErrorMessage,
 } from '@chakra-ui/react';
 import { FaEdit as EditIcon } from 'react-icons/fa';
 import { BASE_URL } from '../config/constants';
+import validateContactForm from '../utils/contactValidation';
 
 const EditContactModal = ({ contact, setContacts }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -25,9 +27,17 @@ const EditContactModal = ({ contact, setContacts }) => {
   const [formData, setFormData] = useState(contact);
 
   const toast = useToast();
+  const [errors, setErrors] = useState({});
+
+  const validate = () => {
+    const newErrors = validateContactForm(formData);
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleEdit = async (e) => {
     e.preventDefault();
+    if (!validate()) return;
     setIsLoading(true);
     try {
       const res = await fetch(`${BASE_URL}/contacts/${contact.id}`, {
@@ -91,7 +101,7 @@ const EditContactModal = ({ contact, setContacts }) => {
             <ModalHeader>Edit Contact</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
-              <FormControl id="name">
+              <FormControl id="name" isInvalid={errors.name}>
                 <FormLabel>Name</FormLabel>
                 <Input
                   value={formData.name}
@@ -99,9 +109,10 @@ const EditContactModal = ({ contact, setContacts }) => {
                     setFormData({ ...formData, name: e.target.value })
                   }
                 />
+                <FormErrorMessage>{errors.name}</FormErrorMessage>
               </FormControl>
 
-              <FormControl id="phone" mt={4}>
+              <FormControl id="phone" mt={4} isInvalid={errors.phone}>
                 <FormLabel>Phone</FormLabel>
                 <Input
                   value={formData.phone}
@@ -109,9 +120,10 @@ const EditContactModal = ({ contact, setContacts }) => {
                     setFormData({ ...formData, phone: e.target.value })
                   }
                 />
+                <FormErrorMessage>{errors.phone}</FormErrorMessage>
               </FormControl>
 
-              <FormControl id="occupation" mt={4}>
+              <FormControl id="occupation" mt={4} isInvalid={errors.occupation}>
                 <FormLabel>Occupation</FormLabel>
                 <Input
                   value={formData.occupation}
@@ -119,9 +131,10 @@ const EditContactModal = ({ contact, setContacts }) => {
                     setFormData({ ...formData, occupation: e.target.value })
                   }
                 />
+                <FormErrorMessage>{errors.occupation}</FormErrorMessage>
               </FormControl>
 
-              <FormControl id="address" mt={4}>
+              <FormControl id="address" mt={4} isInvalid={errors.address}>
                 <FormLabel>Address</FormLabel>
                 <Textarea
                   value={formData.address}
@@ -129,6 +142,7 @@ const EditContactModal = ({ contact, setContacts }) => {
                     setFormData({ ...formData, address: e.target.value })
                   }
                 />
+                <FormErrorMessage>{errors.address}</FormErrorMessage>
               </FormControl>
             </ModalBody>
 
